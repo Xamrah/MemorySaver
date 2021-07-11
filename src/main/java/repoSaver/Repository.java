@@ -1,9 +1,11 @@
 package repoSaver;
 
-import java.util.HashMap;
+import utils.User;
+
+import java.sql.SQLException;
 
 public interface Repository {
-    void saveUser(HashMap userDataPack);
-    HashMap getUser(Integer userID);
+    void saveUser(User user) throws SQLException;
+    String getUser(Integer userID);
 
 }

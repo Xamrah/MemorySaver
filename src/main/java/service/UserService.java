@@ -1,56 +1,70 @@
 package service;
 
+import repoSaver.SaveInDatabase;
+import repoSaver.SaveInFile;
 import repoSaver.SaveInMemory;
-
-import java.util.HashMap;
+import utils.User;
+import java.sql.*;
 import java.util.Scanner;
 
 import static utils.UserUtils.checkNames;
 
 public class UserService {
-
+    SaveInMemory saveInMemory = new SaveInMemory();
+    SaveInDatabase saveInDatabase = new SaveInDatabase();
+    SaveInFile saveInFile = new SaveInFile();
     Scanner scanner = new Scanner(System.in);
-    Restore restore = new Restore();
 
-    private HashMap enterData(){
 
+
+    static Integer freeMemUserID = 0;
+    static Integer freeFileUserID = 0;
+    static Integer freeDBUserID = 0;
+
+
+    private User enterData(Integer freeUserID){
         System.out.println("Please, write your name: ");
         String nameUser = checkNames(scanner.next());
 
         System.out.println("Please, write your age: ");
-        String ageUser = String.valueOf(scanner.nextInt());
+        Integer ageUser = scanner.nextInt();
 
         System.out.println("Please, write your country: ");
         String countryUser = checkNames(scanner.next());
 
-        return createUserDataPack(nameUser, ageUser, countryUser);
-    }
-    
+        User user = new User(freeUserID, nameUser, ageUser, countryUser);
 
-    private HashMap createUserDataPack (String nameUser, String ageUser, String countyUser) {
-        HashMap<String, String> userDataPack = new HashMap<>();
-
-        userDataPack.put("nameUser", nameUser);
-        userDataPack.put("ageUser", ageUser);
-        userDataPack.put("countryUser", countyUser);
-
-        return userDataPack;
+        return user;
     }
 
-    public void transmisson(Short numOperation){
-        SaveInMemory saveInMemory = new SaveInMemory();
+
+    public void transmisson(Short numOperation) {
         switch (numOperation){
             case 1:
-                saveInMemory.saveUser(enterData());
+                saveInMemory.saveUser(enterData(freeMemUserID));
+                freeMemUserID++;
+                break;
+            case 2:
+                saveInFile.saveUser(enterData(freeFileUserID));
+                freeFileUserID++;
+                break;
+            case 3:
+                try {
+                    saveInDatabase.saveUser(enterData(freeDBUserID));
+                } catch (SQLException throwables) {
+                    throwables.printStackTrace();
+                }
+                freeDBUserID++;
                 break;
             case 4:
                 System.out.println("Enter userID: ");
-                System.out.println(saveInMemory.getUser(scanner.nextInt()));
-                restore.restart();
+                Integer userId = scanner.nextInt();
+//                System.out.println(saveInMemory.getUser(userId));
+                System.out.println(saveInDatabase.getUser(userId));
+                System.out.println(saveInFile.getUser(userId));
                 break;
             default:
                 System.out.println("Oopsss.... it's not work yet ^_^");
-                restore.restart();
         }
     }
 }

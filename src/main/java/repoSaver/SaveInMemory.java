@@ -1,26 +1,19 @@
 package repoSaver;
 
-import service.Restore;
-import java.util.HashMap;
-
+import utils.User;
+import java.util.LinkedList;
 
 public class SaveInMemory implements Repository{
 
-    Restore restore = new Restore();
 
-    HashMap<Integer, HashMap> databaseInMemory = new HashMap<>();
+    LinkedList<User> databaseInMemory = new LinkedList<>();
 
-    static Integer freeUserID = 0;
 
     @Override
-    public void saveUser(HashMap userDataPack){
-        databaseInMemory.put(freeUserID, userDataPack);
-        freeUserID++;
-        restore.restart();
+    public void saveUser(User user){
+        databaseInMemory.add(user);
     }
 
     @Override
-    public HashMap getUser(Integer userID) {
-        return databaseInMemory.get(userID);
-    }
+    public String getUser(Integer userID) { return databaseInMemory.get(userID).toString(); }
 }
