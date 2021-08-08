@@ -1,11 +1,11 @@
 package repoSaver;
 
-import utils.User;
+import model.User;
 
 import java.sql.SQLException;
 
 public interface Repository {
     void saveUser(User user) throws SQLException;
-    String getUser(Integer userID);
+    String getUsers() throws SQLException;
 
 }
