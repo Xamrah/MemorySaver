@@ -1,11 +1,13 @@
 package repoSaver;
 
-import utils.User;
+import model.User;
 
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
-public class SaveInDatabase implements Repository {
+public class DatabaseRepoImpl implements Repository {
 
     public static Connection connection() throws SQLException {
         String url = "jdbc:postgresql://localhost/elib_test";
@@ -18,7 +20,7 @@ public class SaveInDatabase implements Repository {
     }
 
     public static Connection nowConnection;
-    {
+    static {
         try {
             nowConnection = connection();
         } catch (SQLException throwables) {
@@ -36,33 +38,30 @@ public class SaveInDatabase implements Repository {
         boolean execute = ps.execute();
     }
 
-    private User downloadUser(Integer userID, Connection nowConnection) throws SQLException {
-        PreparedStatement statement = nowConnection.prepareStatement("select * from userlist where id = ?");
-        statement.setInt(1, userID);
+
+    @Override
+    public String getUsers() throws SQLException {
+        PreparedStatement statement = nowConnection.prepareStatement("select * from userlist");
         boolean hasResult = statement.execute();
 
         if(hasResult) {
+            List<User> users = new ArrayList<>();
             ResultSet resultSet = statement.getResultSet();
-            resultSet.next();
-            User user = new User(resultSet.getInt(1), resultSet.getString(2), resultSet.getInt(3), resultSet.getString(4));
-            return user;
+            while (resultSet.next()) {
+                User U = new User();
+                U.setId(resultSet.getInt(1));
+                U.setName(resultSet.getString(2));
+                U.setAge(resultSet.getInt(3));
+                U.setCountry(resultSet.getString(4));
+                users.add(U);
+            }
+            StringBuilder result = new StringBuilder();
+            for (User user: users) {
+                result.append(user.toString()).append("\n");
+            }
+            return result.toString();
         }
-        return null;
-    }
 
-    @Override
-    public String getUser(Integer userID) {
-        User currentUser = null;
-        try {
-            currentUser = downloadUser(userID, nowConnection);
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
-        }
-
-        if (currentUser != null) {
-            return currentUser.toString();
-        } else {
-            return "Not found user";
-        }
+        return "DataBase is empty.";
     }
 }

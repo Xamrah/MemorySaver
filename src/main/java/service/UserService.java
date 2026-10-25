@@ -1,70 +1,41 @@
 package service;
 
-import repoSaver.SaveInDatabase;
-import repoSaver.SaveInFile;
-import repoSaver.SaveInMemory;
-import utils.User;
+import repoSaver.DatabaseRepoImpl;
+import repoSaver.FileRepoImpl;
+import repoSaver.MemoryRepoImpl;
+import model.User;
 import java.sql.*;
-import java.util.Scanner;
-
-import static utils.UserUtils.checkNames;
 
 public class UserService {
-    SaveInMemory saveInMemory = new SaveInMemory();
-    SaveInDatabase saveInDatabase = new SaveInDatabase();
-    SaveInFile saveInFile = new SaveInFile();
-    Scanner scanner = new Scanner(System.in);
+    MemoryRepoImpl memoryRepo = new MemoryRepoImpl();
+    DatabaseRepoImpl databaseRepo= new DatabaseRepoImpl();
+    FileRepoImpl fileRepo = new FileRepoImpl();
 
-
-
-    static Integer freeMemUserID = 0;
-    static Integer freeFileUserID = 0;
-    static Integer freeDBUserID = 0;
-
-
-    private User enterData(Integer freeUserID){
-        System.out.println("Please, write your name: ");
-        String nameUser = checkNames(scanner.next());
-
-        System.out.println("Please, write your age: ");
-        Integer ageUser = scanner.nextInt();
-
-        System.out.println("Please, write your country: ");
-        String countryUser = checkNames(scanner.next());
-
-        User user = new User(freeUserID, nameUser, ageUser, countryUser);
-
-        return user;
+    public void saveAll(User user) throws SQLException {
+        fileRepo.saveUser(user);
+        databaseRepo.saveUser(user);
+        memoryRepo.saveUser(user);
     }
 
+    public void saveInMemory(User user){
+        memoryRepo.saveUser(user);
+    }
 
-    public void transmisson(Short numOperation) {
-        switch (numOperation){
-            case 1:
-                saveInMemory.saveUser(enterData(freeMemUserID));
-                freeMemUserID++;
-                break;
-            case 2:
-                saveInFile.saveUser(enterData(freeFileUserID));
-                freeFileUserID++;
-                break;
-            case 3:
-                try {
-                    saveInDatabase.saveUser(enterData(freeDBUserID));
-                } catch (SQLException throwables) {
-                    throwables.printStackTrace();
-                }
-                freeDBUserID++;
-                break;
-            case 4:
-                System.out.println("Enter userID: ");
-                Integer userId = scanner.nextInt();
-//                System.out.println(saveInMemory.getUser(userId));
-                System.out.println(saveInDatabase.getUser(userId));
-                System.out.println(saveInFile.getUser(userId));
-                break;
-            default:
-                System.out.println("Oopsss.... it's not work yet ^_^");
-        }
+    public void saveInFile(User user){
+        fileRepo.saveUser(user);
+    }
+
+    public void saveInDatabase(User user) throws SQLException {
+        databaseRepo.saveUser(user);
+    }
+
+    public void showAll() throws SQLException {
+        System.out.println("########################\nUsers in Memory:");
+        System.out.println(memoryRepo.getUsers());
+        System.out.println("########################\nUsers in File:");
+        System.out.println(fileRepo.getUsers());
+        System.out.println("########################\nUsers in Database:");
+        System.out.println(databaseRepo.getUsers());
+
     }
 }
